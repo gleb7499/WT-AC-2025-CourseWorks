@@ -1,0 +1,1 @@
+Base manifests placeholder. Add Deployments/Services/Ingress/ConfigMap/Secret/PVC templates here for server, web, postgres, and redis. Overlays in overlays/dev and overlays/prod will patch images, replicas, and ingress hosts.

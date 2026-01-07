@@ -1,0 +1,14 @@
+{
+  "name": "wt-ac-2025-courseworks-task-02",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Full-stack course project scaffold (variant 40)",
+  "scripts": {
+    "dev:server": "pnpm --filter @app/server dev",
+    "dev:web": "pnpm --filter @app/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  },
+  "packageManager": "pnpm@8.15.4"
+}
