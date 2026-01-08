@@ -1,14 +1,24 @@
 import { prisma } from "../../lib/prisma.js";
 import { AppError } from "../../lib/errors.js";
 import { logger } from "../../lib/logger.js";
+import { getCachedData, invalidateByPattern } from "../../lib/cache.js";
+import { config } from "../../lib/config.js";
+
+const buildFormsCacheKey = (isActive?: boolean | null) => {
+  const suffix = isActive === undefined || isActive === null ? "all" : isActive ? "active" : "inactive";
+  return `forms:list:${suffix}`;
+};
 
 export const listForms = async (opts: { isActive?: boolean | null }) => {
-  return prisma.form.findMany({
-    where: {
-      isActive: opts.isActive === undefined || opts.isActive === null ? undefined : opts.isActive
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  const cacheKey = buildFormsCacheKey(opts.isActive);
+  return getCachedData(cacheKey, config.cacheTtl.short, () =>
+    prisma.form.findMany({
+      where: {
+        isActive: opts.isActive === undefined || opts.isActive === null ? undefined : opts.isActive
+      },
+      orderBy: { createdAt: "desc" }
+    })
+  );
 };
 
 export const getFormById = async (id: string) => {
@@ -31,6 +41,7 @@ export const createForm = async (
     }
   });
   logger.info({ formId: form.id, userId: createdById }, "form created");
+  await invalidateByPattern("forms:list:*");
   return form;
 };
 
@@ -50,6 +61,7 @@ export const updateForm = async (
     }
   });
   logger.info({ formId: form.id }, "form updated");
+  await invalidateByPattern("forms:list:*");
   return form;
 };
 
@@ -58,4 +70,5 @@ export const deleteForm = async (id: string) => {
   if (!existing) throw new AppError(404, "Form not found", "not_found");
   await prisma.form.delete({ where: { id } });
   logger.info({ formId: id }, "form deleted");
+  await invalidateByPattern("forms:list:*");
 };

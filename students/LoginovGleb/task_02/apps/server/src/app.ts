@@ -13,6 +13,11 @@ import { notFoundHandler } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { config } from "./lib/config.js";
 import { existsSync } from "node:fs";
+import {
+  httpRequestDuration,
+  httpRequestsTotal,
+  register as metricsRegistry
+} from "./lib/metrics.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -26,6 +31,23 @@ const openapiDocument = YAML.parse(readFileSync(openapiPath, "utf8"));
 export const buildApp = () => {
   const app = express();
 
+  app.use((req, res, next) => {
+    const end = httpRequestDuration.startTimer();
+
+    res.on("finish", () => {
+      const labels = {
+        method: req.method,
+        path: (req.route?.path as string | undefined) || req.path,
+        status: res.statusCode.toString()
+      };
+
+      httpRequestsTotal.inc(labels);
+      end(labels);
+    });
+
+    next();
+  });
+
   app.use(requestLogger);
   app.use(
     cors({
@@ -36,6 +58,11 @@ export const buildApp = () => {
   app.use(helmet());
   app.use(express.json());
   app.use(cookieParser());
+
+  app.get("/metrics", async (_req, res) => {
+    res.set("Content-Type", metricsRegistry.contentType);
+    res.end(await metricsRegistry.metrics());
+  });
 
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiDocument));
   app.get("/api-docs.json", (_req, res) => res.json(openapiDocument));

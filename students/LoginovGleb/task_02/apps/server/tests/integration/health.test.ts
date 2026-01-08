@@ -11,9 +11,10 @@ describe("health endpoints", () => {
     expect(res.body.status).toBe("ok");
   });
 
-  it("returns ready when DB reachable", async () => {
+  it("returns readiness details", async () => {
     const res = await request(app).get("/ready");
     expect(res.status).toBe(200);
-    expect(res.body.status).toBe("ready");
+    expect(["ok", "degraded"]).toContain(res.body.status);
+    expect(res.body.checks.database.status).toBe("ok");
   });
 });

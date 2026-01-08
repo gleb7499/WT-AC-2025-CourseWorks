@@ -1,9 +1,15 @@
 import { prisma } from "../../lib/prisma.js";
 import { AppError } from "../../lib/errors.js";
 import { logger } from "../../lib/logger.js";
+import { getCachedData, invalidateByPattern } from "../../lib/cache.js";
+import { config } from "../../lib/config.js";
+
+const STATUS_LIST_CACHE_KEY = "statuses:list";
 
 export const listStatuses = async () => {
-  return prisma.status.findMany({ orderBy: [{ order: "asc" }, { createdAt: "asc" }] });
+  return getCachedData(STATUS_LIST_CACHE_KEY, config.cacheTtl.short, () =>
+    prisma.status.findMany({ orderBy: [{ order: "asc" }, { createdAt: "asc" }] })
+  );
 };
 
 export const getStatus = async (id: string) => {
@@ -25,6 +31,7 @@ export const createStatus = async (
     }
   });
   logger.info({ statusId: status.id }, "status created");
+  await invalidateByPattern(`${STATUS_LIST_CACHE_KEY}*`);
   return status;
 };
 
@@ -45,6 +52,7 @@ export const updateStatus = async (
     }
   });
   logger.info({ statusId: status.id }, "status updated");
+  await invalidateByPattern(`${STATUS_LIST_CACHE_KEY}*`);
   return status;
 };
 
@@ -53,4 +61,5 @@ export const deleteStatus = async (id: string) => {
   if (!existing) throw new AppError(404, "Status not found", "not_found");
   await prisma.status.delete({ where: { id } });
   logger.info({ statusId: id }, "status deleted");
+  await invalidateByPattern(`${STATUS_LIST_CACHE_KEY}*`);
 };

@@ -63,6 +63,11 @@ services:
       JWT_REFRESH_TTL: ${JWT_REFRESH_TTL:-7d}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      CACHE_TTL_SHORT: ${CACHE_TTL_SHORT:-30}
+      CACHE_TTL_MEDIUM: ${CACHE_TTL_MEDIUM:-300}
+      CACHE_TTL_LONG: ${CACHE_TTL_LONG:-3600}
     volumes:
       # Mount source code for hot reload
       - ./apps/server/src:/repo/apps/server/src

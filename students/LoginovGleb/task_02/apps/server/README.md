@@ -127,6 +127,15 @@ NODE_ENV=development
 # Cookies (для production установите true)
 COOKIE_SECURE=false
 COOKIE_SAMESITE=lax
+
+# Logging / Observability
+LOG_LEVEL=debug
+REDIS_URL=redis://localhost:6379
+
+# Cache TTL (секунды)
+CACHE_TTL_SHORT=30
+CACHE_TTL_MEDIUM=300
+CACHE_TTL_LONG=3600
 ```
 
 **Примечания:**
@@ -401,24 +410,26 @@ curl.exe http://localhost:3000/health
 { "status": "ok" }
 ```
 
-### Ready (с проверкой БД)
+### Ready (БД + Redis)
 
 ```bash
 curl.exe http://localhost:3000/ready
 ```
 
-**Ответ:**
+**Ответ (пример):**
 
 ```json
 {
   "status": "ok",
   "checks": {
-    "database": "ok"
-  }
+    "database": { "status": "ok", "responseTime": 5 },
+    "redis": { "status": "ok", "responseTime": 2 }
+  },
+  "timestamp": "2024-01-01T12:00:00.000Z"
 }
 ```
 
-Если БД недоступна — вернёт 503.
+Если БД недоступна — HTTP 503 и `status=degraded`. Если Redis недоступен, `status=degraded`, но HTTP 200 (кэш отключается).
 
 ## Структура проекта
 
@@ -447,14 +458,26 @@ apps/server/
 └── README.md
 ```
 
-## Логирование
+## Observability
 
-Используется Pino с форматированием:
+**Логи (Pino):**
+- Структурированный JSON вывод, уровни настраиваются через `LOG_LEVEL`.
+- `pino-http` логирует входящие запросы: метод, путь, статус, длительность; заголовки `Authorization` и `Cookie` редактируются.
+- Ошибки пишутся с stack trace; бизнес-события (создание/обновление/удаление, auth) логируются явными сообщениями.
 
-- **Development:** Pretty logs (читаемый вывод)
-- **Production:** JSON logs (для централизованного сбора)
+**Метрики (Prometheus):**
+- Эндпоинт: `/metrics` (text/plain, Prometheus exposition format).
+- Метрики: `http_requests_total`, `http_request_duration_seconds`, `auth_attempts_total` (type=login/register/refresh, success), `active_users_total` (зарезервировано) и стандартные `process_*`/`nodejs_*` от `collectDefaultMetrics`.
 
-Уровень логов настраивается через `NODE_ENV`.
+**Кэш (Redis):**
+- Клиент: `ioredis`, URL задаётся `REDIS_URL`.
+- Кэшируются часто запрашиваемые списки (`forms:list:*`, `statuses:list:*`) с TTL из `CACHE_TTL_*` (по умолчанию 30/300/3600 секунд).
+- Инвалидация выполняется после create/update/delete.
+- При недоступном Redis приложение деградирует gracefully (кэш пропускается, остаётся БД).
+
+**Health checks:**
+- `/health` — liveness.
+- `/ready` — readiness: проверка БД (критична, 503 при недоступности) и Redis (некритичен: статус `degraded`, HTTP 200). Ответ содержит время отклика для проверок.
 
 ## Безопасность
 
@@ -536,12 +559,5 @@ pnpm --filter @app/server start
 
 ## Следующие этапы
 
-MVP реализован. Планируются бонусные фичи:
-
-- OpenAPI 3.0 спецификация + Swagger UI
-- Unit и integration тесты (Vitest)
-- Dockerfile + Docker Compose
-- Kubernetes манифесты
-- CI/CD пайплайн
-- Prometheus метрики
-- Redis для кэширования сессий
+- Дополнить наблюдаемость: дашборды (Grafana), алерты (Alertmanager), трассировка (OpenTelemetry).
+- Оптимизация кэшей под реальные нагрузки и профилирование горячих запросов.

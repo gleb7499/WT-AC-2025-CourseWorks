@@ -6,6 +6,7 @@ import { sha256 } from "../../lib/hash.js";
 import { logger } from "../../lib/logger.js";
 import { config } from "../../lib/config.js";
 import { signAccessToken, signRefreshToken, ttlToMs, verifyRefreshToken } from "../../lib/jwt.js";
+import { authAttemptsTotal } from "../../lib/metrics.js";
 
 const SALT_ROUNDS = 10;
 const REFRESH_COOKIE_NAME = "refresh_token";
@@ -86,12 +87,17 @@ const createSessionRecord = async (
   return { session, expiresAt };
 };
 
+const recordAuthAttempt = (type: "login" | "register" | "refresh", success: boolean) => {
+  authAttemptsTotal.inc({ type, success: success ? "true" : "false" });
+};
+
 export const register = async (
   input: { email: string; username: string; password: string },
   ctx: AuthContext
 ) => {
   const existing = await prisma.user.findFirst({ where: { OR: [{ email: input.email }, { username: input.username }] } });
   if (existing) {
+    recordAuthAttempt("register", false);
     throw new AppError(409, "User with provided email or username already exists", "conflict");
   }
 
@@ -108,6 +114,7 @@ export const register = async (
   const jti = randomUUID();
   const { accessToken, refreshToken } = buildTokens(user, jti);
   await createSessionRecord(user.id, jti, ctx);
+  recordAuthAttempt("register", true);
   logger.info({ userId: user.id }, "user registered");
 
   return { user, accessToken, refreshToken };
@@ -116,17 +123,20 @@ export const register = async (
 export const login = async (input: { email: string; password: string }, ctx: AuthContext) => {
   const user = await prisma.user.findUnique({ where: { email: input.email } });
   if (!user) {
+    recordAuthAttempt("login", false);
     throw new AppError(401, "Invalid credentials", "unauthorized");
   }
 
   const match = await bcrypt.compare(input.password, user.passwordHash);
   if (!match) {
+    recordAuthAttempt("login", false);
     throw new AppError(401, "Invalid credentials", "unauthorized");
   }
 
   const jti = randomUUID();
   const { accessToken, refreshToken } = buildTokens(user, jti);
   await createSessionRecord(user.id, jti, ctx);
+  recordAuthAttempt("login", true);
   logger.info({ userId: user.id }, "user logged in");
 
   return { user, accessToken, refreshToken };
@@ -134,6 +144,7 @@ export const login = async (input: { email: string; password: string }, ctx: Aut
 
 export const refresh = async (token: string | undefined, ctx: AuthContext) => {
   if (!token) {
+    recordAuthAttempt("refresh", false);
     throw new AppError(401, "Refresh token missing", "unauthorized");
   }
 
@@ -141,10 +152,12 @@ export const refresh = async (token: string | undefined, ctx: AuthContext) => {
   try {
     payload = verifyRefreshToken(token);
   } catch (_err) {
+    recordAuthAttempt("refresh", false);
     throw new AppError(401, "Invalid or expired refresh token", "unauthorized");
   }
 
   if (!payload.jti) {
+    recordAuthAttempt("refresh", false);
     throw new AppError(401, "Refresh token jti missing", "unauthorized");
   }
 
@@ -153,17 +166,20 @@ export const refresh = async (token: string | undefined, ctx: AuthContext) => {
 
   if (!session || session.revokedAt) {
     await revokeAllTokensForUser(payload.sub);
+    recordAuthAttempt("refresh", false);
     throw new AppError(401, "Refresh token revoked", "unauthorized");
   }
 
   if (session.expiresAt.getTime() <= Date.now()) {
     await revokeTokenByHash(hashed);
+    recordAuthAttempt("refresh", false);
     throw new AppError(401, "Refresh token expired", "unauthorized");
   }
 
   const user = await prisma.user.findUnique({ where: { id: payload.sub } });
   if (!user) {
     await revokeAllTokensForUser(payload.sub);
+    recordAuthAttempt("refresh", false);
     throw new AppError(401, "User not found", "unauthorized");
   }
 
@@ -171,6 +187,7 @@ export const refresh = async (token: string | undefined, ctx: AuthContext) => {
   const { accessToken, refreshToken } = buildTokens(user, newJti);
   const { session: newSession } = await createSessionRecord(user.id, newJti, ctx, session.id);
   await revokeTokenByHash(hashed, newSession.id);
+  recordAuthAttempt("refresh", true);
   logger.info({ userId: user.id }, "refresh token rotated");
 
   return { accessToken, refreshToken, user };
