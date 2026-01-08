@@ -468,6 +468,19 @@ pnpm --filter @app/server prisma:studio
 - Масштабирование и ресурсы: HPA для backend в [k8s/base/server/hpa.yaml](k8s/base/server/hpa.yaml); ручное — `kubectl scale deployment/server --replicas=N -n <ns>`. Патчи ресурсов лежат в [k8s/overlays/dev/patches](k8s/overlays/dev/patches) и [k8s/overlays/prod/patches](k8s/overlays/prod/patches).
 - Troubleshooting: `kubectl describe pod <name> -n <ns>`, `kubectl logs -f deployment/server -n <ns>`, `kubectl get ingress -n <ns>`, проверяйте события и readiness/liveness probes (`/health`, `/ready`).
 
+## CI/CD
+
+![CI](https://github.com/brstu/WT-AC-2025-CourseWorks/actions/workflows/ci.yml/badge.svg)
+
+Пайплайн GitHub Actions в [.github/workflows/ci.yml](.github/workflows/ci.yml) выполняет полный цикл: lint → unit → integration → e2e → сборка и пуш Docker-образов в GHCR (для пушей в main). Конфигурация использует кэширование pnpm и Docker Buildx (GHA cache) для ускорения.
+
+- Триггеры: push в main и develop, pull request в main; сборка образов выполняется только на push в main.
+- Стадии: lint (tsc lint/typecheck для backend и frontend), unit (Vitest), integration (PostgreSQL + Redis сервисы, Prisma migrate), e2e (Playwright с seed и wait-on), build (Buildx, метаданные тэгов sha/branch, web build с `VITE_API_URL`).
+- Секреты/переменные: `GITHUB_TOKEN` (по умолчанию), `CODECOV_TOKEN` (опционально для покрытия), `VITE_API_URL` как Actions variable для фронтенд-билда.
+- Артефакты: отчёт Playwright загружается при падении e2e; cobertura lcov отправляется в Codecov (fail_ci_if_error=false).
+- Registry: образы пушатся в `ghcr.io/${repo}-server` и `ghcr.io/${repo}-web` с тэгами `sha` и `branch`.
+- Обновление зависимостей: Dependabot настроен в [.github/dependabot.yml](.github/dependabot.yml) (npm, docker, github-actions, weekly).
+
 ## Следующие этапы (бонусы)
 
 MVP реализован. Планируются:
