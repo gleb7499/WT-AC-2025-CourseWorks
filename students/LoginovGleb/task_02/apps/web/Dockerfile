@@ -14,8 +14,8 @@ COPY packages/ ./packages/
 RUN pnpm install --frozen-lockfile
 
 # Build argument for API URL
-ARG VITE_API_URL=http://localhost:3000
-ENV VITE_API_URL=$VITE_API_URL
+ARG VITE_API_BASE_URL=http://localhost:3000
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # Build the web app
 RUN pnpm -C apps/web build

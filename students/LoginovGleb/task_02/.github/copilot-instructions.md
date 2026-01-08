@@ -58,8 +58,6 @@ apps/
   server/   # backend
   web/      # frontend
 packages/   # общие пакеты (ui, utils)
-docs/       # документация (architecture.md, api.md)
-infra/      # скрипты/инфраструктура
 k8s/        # Kubernetes
 docker-compose.yml
 pnpm-workspace.yaml
@@ -71,7 +69,7 @@ ENV / ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ:
 - НЕ использовать корневой `.env` и `.env.example`.
 - Использовать два файла окружения:
   - `apps/server/.env` — сервер (DATABASE_URL, JWT_* и т.д.)
-  - `apps/web/.env` — клиент (VITE_API_URL и т.д.)
+  - `apps/web/.env` — клиент (VITE_API_BASE_URL и т.д.)
 - Список переменных и примеры значений описывать в README соответствующего приложения.
 
 WORKSPACE/ПАКЕТНЫЙ МЕНЕДЖЕР:

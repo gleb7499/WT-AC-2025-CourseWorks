@@ -7,7 +7,6 @@ coverage
 .env.local
 *.log
 .DS_Store
-pnpm-lock.yaml
 
 # Playwright
 playwright-report
@@ -15,4 +14,8 @@ test-results
 .playwright
 playwright/.cache
 
-secret.yaml
+# Kubernetes secrets (local-only)
+k8s/**/secret.yaml
+k8s/**/secret.yml
+k8s/**/secrets.yaml
+k8s/**/secrets.yml

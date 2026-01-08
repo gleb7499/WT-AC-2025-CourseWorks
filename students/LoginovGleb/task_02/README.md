@@ -230,7 +230,7 @@ task_02/
 │       ├── src/         # Компоненты, страницы, API клиент
 │       └── README.md    # Подробная документация frontend
 ├── packages/            # Общие пакеты (utils, ui)
-├── docs/                # Документация архитектуры
+├── final_acceptance_report.md # Итоговый отчёт приёмки
 ├── task_01/             # Требования и спецификации
 ├── package.json         # Корневой package.json с общими скриптами
 └── pnpm-workspace.yaml  # Конфигурация монорепозитория
@@ -334,36 +334,19 @@ pnpm docker:up
 
 ### Переменные окружения для Docker
 
-Создайте файл `.env` в корне проекта или используйте значения по умолчанию:
+По проектным правилам **не используем корневой `.env`**. Docker Compose уже содержит безопасные дефолты (через `${VAR:-default}`), а при необходимости значения можно передать через переменные окружения системы.
 
-```env
-# PostgreSQL
-POSTGRES_USER=app_user
-POSTGRES_PASSWORD=app_password
-POSTGRES_DB=app_db
+Примеры (PowerShell):
 
-# Database URL
-DATABASE_URL=postgresql://app_user:app_password@postgres:5432/app_db?schema=public
-
-# Server
-SERVER_PORT=3000
-CORS_ORIGIN=http://localhost
-
-# JWT (ВАЖНО: измените в production!)
-JWT_ACCESS_SECRET=change-me-in-production
-JWT_REFRESH_SECRET=change-me-in-production
-JWT_ACCESS_TTL=15m
-JWT_REFRESH_TTL=7d
-
-# Cookies
-COOKIE_SECURE=false
-COOKIE_SAMESITE=lax
-
-# Frontend build
-VITE_API_URL=http://localhost:3000
-
-# Ports
-WEB_PORT=80
+```powershell
+$env:POSTGRES_USER="app_user"
+$env:POSTGRES_PASSWORD="app_password"
+$env:POSTGRES_DB="app_db"
+$env:JWT_ACCESS_SECRET="change-me-in-production"
+$env:JWT_REFRESH_SECRET="change-me-in-production"
+$env:VITE_API_BASE_URL="http://localhost:3000"
+$env:WEB_PORT="80"
+pnpm docker:up
 ```
 
 ### Запуск в Docker (development mode)
@@ -488,15 +471,15 @@ pnpm --filter @app/server prisma:studio
 Пайплайн GitHub Actions в [.github/workflows/ci.yml](.github/workflows/ci.yml) выполняет полный цикл: lint → unit → integration → e2e → сборка и пуш Docker-образов в GHCR (для пушей в main). Конфигурация использует кэширование pnpm и Docker Buildx (GHA cache) для ускорения.
 
 - Триггеры: push в main и develop, pull request в main; сборка образов выполняется только на push в main.
-- Стадии: lint (tsc lint/typecheck для backend и frontend), unit (Vitest), integration (PostgreSQL + Redis сервисы, Prisma migrate), e2e (Playwright с seed и wait-on), build (Buildx, метаданные тэгов sha/branch, web build с `VITE_API_URL`).
-- Секреты/переменные: `GITHUB_TOKEN` (по умолчанию), `CODECOV_TOKEN` (опционально для покрытия), `VITE_API_URL` как Actions variable для фронтенд-билда.
+- Стадии: lint (tsc lint/typecheck для backend и frontend), unit (Vitest), integration (PostgreSQL + Redis сервисы, Prisma migrate), e2e (Playwright с seed и wait-on), build (Buildx, метаданные тэгов sha/branch, web build с `VITE_API_BASE_URL`).
+- Секреты/переменные: `GITHUB_TOKEN` (по умолчанию), `CODECOV_TOKEN` (опционально для покрытия), `VITE_API_BASE_URL` как Actions variable для фронтенд-билда.
 - Артефакты: отчёт Playwright загружается при падении e2e; cobertura lcov отправляется в Codecov (fail_ci_if_error=false).
 - Registry: образы пушатся в `ghcr.io/${repo}-server` и `ghcr.io/${repo}-web` с тэгами `sha` и `branch`.
 - Обновление зависимостей: Dependabot настроен в [.github/dependabot.yml](.github/dependabot.yml) (npm, docker, github-actions, weekly).
 
-## Следующие этапы (бонусы)
+## Реализованные бонусы
 
-MVP реализован. Планируются:
+MVP реализован. Дополнительно реализовано:
 
 - Документация API (OpenAPI + Swagger UI)
 - Тестирование (Vitest + Playwright)
