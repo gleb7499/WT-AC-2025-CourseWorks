@@ -12,10 +12,15 @@ import { apiRouter } from "./routes/index.js";
 import { notFoundHandler } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { config } from "./lib/config.js";
+import { existsSync } from "node:fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const openapiPath = join(__dirname, "..", "openapi.yaml");
+
+// Determine correct path: dev (src/) vs production (dist/src/)
+const devPath = join(__dirname, "..", "openapi.yaml");
+const prodPath = join(__dirname, "..", "..", "openapi.yaml");
+const openapiPath = existsSync(devPath) ? devPath : prodPath;
 const openapiDocument = YAML.parse(readFileSync(openapiPath, "utf8"));
 
 export const buildApp = () => {

@@ -87,7 +87,7 @@ export const createApplication = async (
       formId: input.formId,
       userId: currentUser.id,
       statusId: draftStatus.id,
-      data: input.data,
+      data: input.data as object,
       comment: input.comment ?? null
     }
   });
@@ -121,7 +121,7 @@ export const updateApplication = async (
   const updated = await prisma.application.update({
     where: { id },
     data: {
-      data: input.data ?? app.data,
+      data: (input.data ?? app.data) as object,
       comment: input.comment ?? app.comment
     }
   });

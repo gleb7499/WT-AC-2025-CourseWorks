@@ -198,6 +198,67 @@ pnpm dev
 - 5 базовых статусов: draft, pending, approved, rejected, withdrawn (с цветами)
 - 2 формы заявок: «Участие в событии» (активна), «Обратная связь» (неактивна)
 - 5 демонстрационных заявок в разных статусах
+
+## Тестирование
+
+Сервер покрыт unit и integration тестами с использованием **Vitest**.
+
+### Запуск тестов
+
+```bash
+# Запустить все тесты
+pnpm test
+
+# Запустить в watch-режиме
+pnpm test:watch
+
+# Запустить с coverage-отчётом
+pnpm test:coverage
+```
+
+### Структура тестов
+
+```
+tests/
+├── setup.ts              # Глобальная настройка тестовой среды
+├── integration/          # Integration-тесты API
+│   ├── setup.ts          # Настройка тестовой БД
+│   ├── auth.test.ts      # Тесты аутентификации
+│   ├── applications.test.ts  # Тесты CRUD заявок
+│   ├── forms.test.ts     # Тесты CRUD форм
+│   └── health.test.ts    # Тесты health endpoints
+└── unit/                 # Unit-тесты
+    ├── middleware/       # Тесты middleware
+    │   ├── auth.test.ts
+    │   ├── authorize.test.ts
+    │   └── errorHandler.test.ts
+    ├── services/         # Тесты бизнес-логики (future)
+    └── utils/            # Тесты утилит
+        ├── hash.test.ts
+        ├── jwt.test.ts
+        └── pagination.test.ts
+```
+
+### Покрытие
+
+**Unit-тесты:**
+- Утилиты хеширования паролей (bcrypt)
+- Утилиты JWT (создание/верификация токенов)
+- Пагинация
+- Middleware авторизации
+- Error handler
+
+**Integration-тесты:**
+- Регистрация и вход пользователей
+- Обновление токенов (refresh)
+- CRUD операции с заявками
+- CRUD операции с формами
+- Health checks
+- Проверка прав доступа на уровне API
+
+### Тестовая БД
+
+Integration-тесты используют in-memory SQLite базу данных, которая создаётся и уничтожается для каждого тестового запуска. Никакая продакшн-данные не затрагиваются.
 - 1 файл-вложение
 
 ⚠️ **Важно:** Seed **очищает все таблицы** перед созданием данных! Используйте только в dev-окружении.

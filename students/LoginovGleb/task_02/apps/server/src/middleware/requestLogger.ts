@@ -1,17 +1,14 @@
 import pinoHttp from "pino-http";
 import { logger } from "../lib/logger.js";
 
-export const requestLogger = pinoHttp({
+const pinoHttpMiddleware = pinoHttp as unknown as typeof pinoHttp.default;
+
+export const requestLogger = pinoHttpMiddleware({
   logger,
   customSuccessMessage: function () {
     return "request completed";
   },
   customErrorMessage: function () {
     return "request errored";
-  },
-  serializers: {
-    err: pinoHttp.stdSerializers.err,
-    req: pinoHttp.stdSerializers.req,
-    res: pinoHttp.stdSerializers.res
   }
 });

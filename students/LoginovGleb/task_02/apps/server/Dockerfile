@@ -1,22 +1,50 @@
-FROM node:20-alpine AS base
-WORKDIR /app
+# Multi-stage build for monorepo with pnpm
+
+# Stage 1: Builder
+FROM node:20-alpine AS builder
+WORKDIR /repo
+
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 RUN corepack enable
 
-COPY package.json tsconfig.json ./
-COPY prisma ./prisma
-COPY src ./src
+# Copy monorepo configuration
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/ ./apps/
+COPY packages/ ./packages/
 
-RUN pnpm install --prefer-offline || pnpm install
-RUN pnpm build
+# Install all dependencies (including dev dependencies for build)
+RUN pnpm install --frozen-lockfile
 
-FROM node:20-alpine AS runner
-WORKDIR /app
+# Build server and generate Prisma client
+RUN pnpm -C apps/server build
+WORKDIR /repo/apps/server
+RUN pnpm prisma generate
+WORKDIR /repo
+
+# Stage 2: Production
+FROM node:20-alpine AS production
+WORKDIR /repo
+
+# Install OpenSSL for Prisma and curl for healthchecks
+RUN apk add --no-cache openssl curl
+
+ENV NODE_ENV=production
 RUN corepack enable
 
-COPY --from=base /app/package.json ./
-COPY --from=base /app/node_modules ./node_modules
-COPY --from=base /app/dist ./dist
-COPY --from=base /app/prisma ./prisma
+# Copy entire monorepo structure from builder
+COPY --from=builder /repo /repo
 
+# Copy entrypoint script
+COPY apps/server/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Set working directory to server app
+WORKDIR /repo/apps/server
+
+# Expose port
 EXPOSE 3000
-CMD ["node", "dist/index.js"]
+
+# Use entrypoint for migrations + start
+ENTRYPOINT ["docker-entrypoint.sh"]

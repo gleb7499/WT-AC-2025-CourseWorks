@@ -167,6 +167,109 @@ src/
 - Сообщения об ошибках: `error-message`
 - Индикаторы загрузки: `loading-indicator`
 
+## Тестирование
+
+Приложение покрыто E2E тестами с использованием **Playwright**.
+
+### Предварительные требования
+
+1. **Backend и frontend должны быть запущены:**
+
+```bash
+# Terminal 1 - Backend
+pnpm --filter @app/server dev
+
+# Terminal 2 - Frontend  
+pnpm --filter @app/web dev
+```
+
+2. **База данных должна быть заполнена seed-данными:**
+
+```bash
+pnpm --filter @app/server prisma:seed
+```
+
+Это создаст тестовых пользователей:
+- admin@example.com / admin123!
+- moderator@example.com / moderator123!
+- user@example.com / user123!
+
+### Запуск E2E тестов
+
+```bash
+# Запустить все E2E тесты
+pnpm test:e2e
+
+# Запустить в UI-режиме (рекомендуется для разработки)
+pnpm test:e2e:ui
+
+# Запустить в debug-режиме
+pnpm test:e2e:debug
+
+# Запустить конкретный тест-файл
+npx playwright test tests/e2e/auth.spec.ts
+```
+
+### Структура тестов
+
+```
+tests/
+├── e2e/
+│   ├── global-setup.ts        # Глобальная настройка (проверка серверов)
+│   ├── fixtures.ts            # Хелперы и тестовые данные
+│   ├── auth.spec.ts           # Аутентификация (10 тестов)
+│   ├── applications.spec.ts   # CRUD заявок (8 тестов)
+│   ├── roles.spec.ts          # Роли и права (14 тестов)
+│   ├── forms-statuses.spec.ts # Формы и статусы (10 тестов)
+│   ├── navigation.spec.ts     # Навигация (8 тестов)
+│   └── workflows.spec.ts      # Полные сценарии (7 тестов)
+└── playwright.config.ts       # Конфигурация Playwright
+```
+
+### Покрытие (57 тестов)
+
+**Аутентификация (10 тестов):**
+- Вход и выход
+- Регистрация новых пользователей
+- Валидация форм
+- Обработка ошибок
+
+**Роли и права доступа (14 тестов):**
+- Проверка доступа user, moderator, admin
+- Ограничения по ролям
+- Видимость элементов интерфейса
+
+**CRUD операции (18 тестов):**
+- Создание, просмотр, редактирование, удаление заявок
+- Управление формами (admin)
+- Управление статусами (admin)
+
+**Навигация (8 тестов):**
+- Маршруты и переходы
+- Защищённые страницы
+- 404 страница
+
+**Workflows (7 тестов):**
+- Полный цикл заявки от создания до одобрения
+- Смена статусов
+- Отзыв заявок
+
+### Конфигурация
+
+Параметры Playwright задаются в `playwright.config.ts`:
+- Браузер: Chromium
+- Базовый URL: http://localhost:5173
+- Timeout: 60 секунд
+- Parallel workers: 6
+- Retry: 1 раз при падении
+
+### Отчёты и скриншоты
+
+При падении тестов автоматически создаются:
+- Скриншоты (test-results/)
+- Error context (test-results/*/error-context.md)
+- HTML-отчёт: `npx playwright show-report`
+
 ## Демонстрация
 
 Для демонстрации преподавателю:

@@ -10,8 +10,9 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["vitest/globals", "node"]
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src", "tests"],
-  "exclude": ["dist", "node_modules"]
+  "include": ["src", "src/types"],
+  "exclude": ["dist", "node_modules", "tests"]
 }

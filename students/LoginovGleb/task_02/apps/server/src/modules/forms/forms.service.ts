@@ -5,7 +5,7 @@ import { logger } from "../../lib/logger.js";
 export const listForms = async (opts: { isActive?: boolean | null }) => {
   return prisma.form.findMany({
     where: {
-      isActive: opts.isActive === undefined ? undefined : opts.isActive
+      isActive: opts.isActive === undefined || opts.isActive === null ? undefined : opts.isActive
     },
     orderBy: { createdAt: "desc" }
   });

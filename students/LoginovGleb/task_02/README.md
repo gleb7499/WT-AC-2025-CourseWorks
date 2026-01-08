@@ -148,6 +148,63 @@ pnpm dev:web
 Access token истекает через 15 минут (по умолчанию). При любом защищённом запросе после истечения:
 
 - Frontend автоматически вызовет `POST /auth/refresh` с HttpOnly cookie
+
+## Тестирование
+
+### Unit и Integration тесты (Backend)
+
+Сервер покрыт unit и integration тестами с использованием Vitest:
+
+```bash
+# Запустить все тесты backend
+pnpm --filter @app/server test
+
+# Запустить тесты в watch-режиме
+pnpm --filter @app/server test:watch
+
+# Запустить тесты с coverage
+pnpm --filter @app/server test:coverage
+```
+
+**Покрытие:**
+
+- Unit-тесты для утилит (hash, jwt, pagination)
+- Unit-тесты для middleware (auth, authorize, errorHandler)
+- Integration-тесты для API эндпоинтов (auth, applications, forms, statuses)
+
+### E2E тесты (Frontend + Backend)
+
+Приложение покрыто E2E тестами с использованием Playwright:
+
+```bash
+# Перед запуском убедитесь, что backend и frontend запущены:
+# Terminal 1: pnpm dev:server
+# Terminal 2: pnpm dev:web
+
+# Запустить E2E тесты
+pnpm --filter @app/web test:e2e
+
+# Запустить в UI-режиме
+pnpm --filter @app/web test:e2e:ui
+
+# Запустить в debug-режиме
+pnpm --filter @app/web test:e2e:debug
+```
+
+**Покрытие (57 тестов):**
+
+- Аутентификация (регистрация, вход, выход, валидация)
+- Роли и права доступа (user, moderator, admin)
+- CRUD операции (заявки, формы, статусы)
+- Навигация и защищённые маршруты
+- Полные пользовательские сценарии (workflows)
+
+**Важно:** E2E тесты требуют, чтобы база данных была заполнена seed-данными:
+
+```bash
+pnpm --filter @app/server prisma:seed
+```
+
 - Получит новый access token
 - Повторит исходный запрос
 - Пользователь не заметит разрыва сессии
@@ -196,6 +253,197 @@ task_02/
 
 - **Backend health:** <http://localhost:3000/health>
 - **Backend readiness:** <http://localhost:3000/ready> (проверяет подключение к БД)
+
+## Docker
+
+Приложение полностью контейнеризировано и готово к деплою.
+
+### Требования
+
+- Docker 24+
+- Docker Compose 2.20+
+
+### Быстрый старт (Production)
+
+```bash
+# 1. Собрать образы
+pnpm docker:build
+
+# 2. Запустить стек
+pnpm docker:up
+
+# 3. Открыть в браузере
+# Frontend: http://localhost
+# Backend:  http://localhost:3000
+```
+
+Для остановки:
+
+```bash
+pnpm docker:down
+```
+
+### Все команды Docker
+
+```bash
+# Production режим
+pnpm docker:build      # Собрать все образы
+pnpm docker:up         # Запустить все сервисы в фоне
+pnpm docker:down       # Остановить и удалить контейнеры
+pnpm docker:logs       # Просмотр логов всех сервисов
+
+# Development режим (с hot reload)
+pnpm docker:dev        # Запустить dev-окружение
+pnpm docker:dev:down   # Остановить dev-окружение
+
+# Альтернативные команды (без pnpm)
+docker compose build           # Собрать образы
+docker compose up -d           # Запустить в фоне
+docker compose ps              # Статус контейнеров
+docker compose logs -f server  # Логи конкретного сервиса
+docker compose down            # Остановить стек
+```
+
+### Доступные URL после запуска
+
+**Production режим (`pnpm docker:up`):**
+
+- **Frontend:** <http://localhost> (порт 80)
+- **Backend:** <http://localhost:3000>
+- **Health check:** <http://localhost:3000/health>
+
+**Development режим (`pnpm docker:dev`):**
+
+- **Frontend:** <http://localhost:5173> (с hot reload)
+- **Backend:** <http://localhost:3000>
+- **PostgreSQL:** localhost:5432 (доступна для локальных инструментов)
+- **Redis:** localhost:6379
+
+### Переменные окружения для Docker
+
+Создайте файл `.env` в корне проекта или используйте значения по умолчанию:
+
+```env
+# PostgreSQL
+POSTGRES_USER=app_user
+POSTGRES_PASSWORD=app_password
+POSTGRES_DB=app_db
+
+# Database URL
+DATABASE_URL=postgresql://app_user:app_password@postgres:5432/app_db?schema=public
+
+# Server
+SERVER_PORT=3000
+CORS_ORIGIN=http://localhost
+
+# JWT (ВАЖНО: измените в production!)
+JWT_ACCESS_SECRET=change-me-in-production
+JWT_REFRESH_SECRET=change-me-in-production
+JWT_ACCESS_TTL=15m
+JWT_REFRESH_TTL=7d
+
+# Cookies
+COOKIE_SECURE=false
+COOKIE_SAMESITE=lax
+
+# Frontend build
+VITE_API_URL=http://localhost:3000
+
+# Ports
+WEB_PORT=80
+```
+
+### Запуск в Docker (development mode)
+
+Development версия с hot reload и volume mounts:
+
+```bash
+# Запустить dev-окружение
+pnpm docker:dev
+
+# Остановить
+pnpm docker:dev:down
+```
+
+В dev-режиме:
+
+- **Frontend:** <http://localhost:5173>
+- **Backend:** <http://localhost:3000>
+- **PostgreSQL:** localhost:5432 (доступен для локальных инструментов)
+- **Redis:** localhost:6379
+- Hot reload для изменений в исходном коде
+- Node.js debugger на порту 9229
+
+### Структура Docker
+
+- **Server Dockerfile** ([apps/server/Dockerfile](apps/server/Dockerfile)): multi-stage build с pnpm и Prisma
+- **Web Dockerfile** ([apps/web/Dockerfile](apps/web/Dockerfile)): multi-stage build + nginx
+- **nginx.conf** ([apps/web/nginx.conf](apps/web/nginx.conf)): SPA fallback, gzip, security headers
+- **docker-compose.yml**: production-like конфигурация
+- **docker-compose.dev.yml**: development конфигурация
+- **.dockerignore**: исключает ненужные файлы из образов
+
+### Сервисы Docker Compose
+
+- **postgres**: PostgreSQL 16 с persistent volume
+- **redis**: Redis 7 для кэширования (готов к использованию)
+- **server**: Backend API с health checks
+- **web**: Frontend nginx с оптимизированными статическими файлами
+
+### Проверка Docker deployment
+
+```bash
+# Проверить работу backend
+curl http://localhost:3000/health
+
+# Проверить readiness (БД + Redis)
+curl http://localhost:3000/ready
+
+# Проверить frontend
+curl http://localhost
+
+# Посмотреть логи конкретного сервиса
+docker compose logs -f server
+docker compose logs -f web
+docker compose logs -f postgres
+
+# Проверить статус контейнеров
+docker compose ps
+```
+
+### Troubleshooting Docker
+
+**Образы слишком большие:**
+
+- Используются multi-stage builds для минимизации размера
+- Production образы не содержат dev dependencies
+- Проверьте размер: `docker images | grep app`
+
+**Ошибки при сборке:**
+
+```bash
+# Очистить кэш Docker
+docker builder prune -a
+
+# Пересобрать без кэша
+docker compose build --no-cache
+```
+
+**Контейнер server не стартует:**
+
+- Проверьте логи: `docker compose logs server`
+- Убедитесь, что PostgreSQL готов к приёму подключений (healthcheck)
+- Проверьте DATABASE_URL в переменных окружения
+
+**База данных пустая после запуска:**
+
+```bash
+# Выполнить миграции внутри контейнера
+docker compose exec server pnpm prisma migrate deploy
+
+# Заполнить тестовыми данными
+docker compose exec server pnpm prisma db seed
+```
 
 ## Дополнительные команды
 
