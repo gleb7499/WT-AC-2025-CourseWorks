@@ -1,6 +1,6 @@
 import { ZodError } from "zod";
-import { logger } from "../lib/logger";
-import { AppError, isAppError } from "../lib/errors";
+import { logger } from "../lib/logger.js";
+import { AppError, isAppError } from "../lib/errors.js";
 import type { Request, Response, NextFunction } from "express";
 
 export const errorHandler = (err: unknown, _req: Request, res: Response, _next: NextFunction) => {

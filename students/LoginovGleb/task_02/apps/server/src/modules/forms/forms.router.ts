@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { asyncHandler } from "../../lib/asyncHandler";
+import { asyncHandler } from "../../lib/asyncHandler.js";
 import {
   createFormHandler,
   deleteFormHandler,
   getFormHandler,
   listFormsHandler,
   updateFormHandler
-} from "./forms.controller";
-import { authenticate, authenticateOptional } from "../../middleware/auth";
-import { authorizeRoles } from "../../middleware/authorize";
+} from "./forms.controller.js";
+import { authenticate, authenticateOptional } from "../../middleware/auth.js";
+import { authorizeRoles } from "../../middleware/authorize.js";
 
 const router = Router();
 

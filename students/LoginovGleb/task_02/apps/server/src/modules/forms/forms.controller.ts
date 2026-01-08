@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { formCreateSchema, formIdParamSchema, formListQuerySchema, formUpdateSchema } from "./forms.schemas";
-import { createForm, deleteForm, getFormById, listForms, updateForm } from "./forms.service";
-import { AppError } from "../../lib/errors";
+import { formCreateSchema, formIdParamSchema, formListQuerySchema, formUpdateSchema } from "./forms.schemas.js";
+import { createForm, deleteForm, getFormById, listForms, updateForm } from "./forms.service.js";
+import { AppError } from "../../lib/errors.js";
 
 const parseBoolean = (value?: string) => {
   if (value === undefined) return undefined;

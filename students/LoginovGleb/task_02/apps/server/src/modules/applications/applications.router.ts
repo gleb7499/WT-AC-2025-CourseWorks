@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/auth";
-import { authorizeRoles } from "../../middleware/authorize";
-import { asyncHandler } from "../../lib/asyncHandler";
+import { authenticate } from "../../middleware/auth.js";
+import { authorizeRoles } from "../../middleware/authorize.js";
+import { asyncHandler } from "../../lib/asyncHandler.js";
 import {
   changeStatusHandler,
   createApplicationHandler,
@@ -11,7 +11,7 @@ import {
   submitApplicationHandler,
   updateApplicationHandler,
   withdrawApplicationHandler
-} from "./applications.controller";
+} from "./applications.controller.js";
 
 const router = Router();
 

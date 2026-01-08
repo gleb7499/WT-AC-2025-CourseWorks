@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { attachmentCreateSchema, attachmentIdParamSchema, attachmentQuerySchema } from "./attachments.schemas";
-import { createAttachment, deleteAttachment, getAttachment, listAttachments } from "./attachments.service";
-import { AppError } from "../../lib/errors";
+import { attachmentCreateSchema, attachmentIdParamSchema, attachmentQuerySchema } from "./attachments.schemas.js";
+import { createAttachment, deleteAttachment, getAttachment, listAttachments } from "./attachments.service.js";
+import { AppError } from "../../lib/errors.js";
 
 export const listAttachmentsHandler = async (req: Request, res: Response) => {
   if (!req.user) throw new AppError(401, "Unauthorized", "unauthorized");

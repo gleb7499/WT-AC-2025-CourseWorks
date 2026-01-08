@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
-import { prisma } from "../../lib/prisma";
-import { AppError } from "../../lib/errors";
-import { sha256 } from "../../lib/hash";
-import { logger } from "../../lib/logger";
-import { config } from "../../lib/config";
-import { signAccessToken, signRefreshToken, ttlToMs, verifyRefreshToken } from "../../lib/jwt";
+import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../lib/errors.js";
+import { sha256 } from "../../lib/hash.js";
+import { logger } from "../../lib/logger.js";
+import { config } from "../../lib/config.js";
+import { signAccessToken, signRefreshToken, ttlToMs, verifyRefreshToken } from "../../lib/jwt.js";
 
 const SALT_ROUNDS = 10;
 const REFRESH_COOKIE_NAME = "refresh_token";

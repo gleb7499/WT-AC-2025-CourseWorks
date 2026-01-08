@@ -7,3 +7,7 @@
 - **Auth & Validation:** JWT, Zod (to be added in later phases).
 - **Packaging:** pnpm workspace with shared packages in packages/ui and packages/utils.
 - **Infrastructure:** Docker Compose for local dev; Kubernetes manifests planned in k8s/.
+- **Testing:**
+  - **Unit tests:** Vitest (apps/server/tests/unit)
+  - **Integration tests:** Vitest + Supertest (apps/server/tests/integration)
+  - **E2E tests:** Playwright (apps/web/tests/e2e)

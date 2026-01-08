@@ -8,3 +8,9 @@ coverage
 *.log
 .DS_Store
 pnpm-lock.yaml
+
+# Playwright
+playwright-report
+test-results
+.playwright
+playwright/.cache

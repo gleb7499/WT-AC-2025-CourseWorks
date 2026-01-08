@@ -6,7 +6,7 @@ import {
   applicationStatusChangeSchema,
   applicationUpdateSchema,
   applicationWithdrawSchema
-} from "./applications.schemas";
+} from "./applications.schemas.js";
 import {
   changeApplicationStatus,
   createApplication,
@@ -16,8 +16,8 @@ import {
   submitApplication,
   updateApplication,
   withdrawApplication
-} from "./applications.service";
-import { AppError } from "../../lib/errors";
+} from "./applications.service.js";
+import { AppError } from "../../lib/errors.js";
 
 export const listApplicationsHandler = async (req: Request, res: Response) => {
   if (!req.user) throw new AppError(401, "Unauthorized", "unauthorized");

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { prisma } from "../lib/prisma";
-import { asyncHandler } from "../lib/asyncHandler";
+import { prisma } from "../lib/prisma.js";
+import { asyncHandler } from "../lib/asyncHandler.js";
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router.get("/health", (_req, res) => {
 
 router.get(
   "/ready",
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (_req: import("express").Request, res: import("express").Response) => {
     try {
       await prisma.$queryRaw`SELECT 1`;
       res.json({ status: "ready" });

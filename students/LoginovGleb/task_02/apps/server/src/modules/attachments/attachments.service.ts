@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
-import { prisma } from "../../lib/prisma";
-import { AppError } from "../../lib/errors";
-import { logger } from "../../lib/logger";
+import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../lib/errors.js";
+import { logger } from "../../lib/logger.js";
 
 const MAX_ATTACHMENTS = 10;
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50 MB

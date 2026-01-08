@@ -1,6 +1,6 @@
-import { buildApp } from "./app";
-import { config } from "./lib/config";
-import { logger } from "./lib/logger";
+import { buildApp } from "./app.js";
+import { config } from "./lib/config.js";
+import { logger } from "./lib/logger.js";
 
 const app = buildApp();
 

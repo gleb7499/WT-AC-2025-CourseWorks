@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { AppError } from "../lib/errors";
+import { AppError } from "../lib/errors.js";
 
 export const authorizeRoles = (...roles: string[]) => {
   return (req: Request, _res: Response, next: NextFunction) => {

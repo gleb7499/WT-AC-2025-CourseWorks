@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { prisma } from "../../lib/prisma";
-import { AppError } from "../../lib/errors";
+import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../lib/errors.js";
 
 export const meHandler = async (req: Request, res: Response) => {
   if (!req.user) {

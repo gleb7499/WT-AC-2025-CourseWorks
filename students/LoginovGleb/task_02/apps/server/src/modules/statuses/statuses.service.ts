@@ -1,6 +1,6 @@
-import { prisma } from "../../lib/prisma";
-import { AppError } from "../../lib/errors";
-import { logger } from "../../lib/logger";
+import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../lib/errors.js";
+import { logger } from "../../lib/logger.js";
 
 export const listStatuses = async () => {
   return prisma.status.findMany({ orderBy: [{ order: "asc" }, { createdAt: "asc" }] });

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import ms from "ms";
-import { config } from "./config";
+import { config } from "./config.js";
 
 export type AccessTokenPayload = {
   sub: string;

@@ -1,7 +1,7 @@
-import { prisma } from "../../lib/prisma";
-import { AppError } from "../../lib/errors";
-import { logger } from "../../lib/logger";
-import { buildPagination } from "../../lib/pagination";
+import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../lib/errors.js";
+import { logger } from "../../lib/logger.js";
+import { buildPagination } from "../../lib/pagination.js";
 
 const DEFAULT_DRAFT_STATUS = "draft";
 const DEFAULT_PENDING_STATUS = "pending";

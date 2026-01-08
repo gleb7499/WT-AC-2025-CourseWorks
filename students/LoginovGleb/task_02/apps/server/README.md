@@ -68,6 +68,12 @@ REST API сервер для системы управления заявкам�
 - `GET /health` — статус сервера
 - `GET /ready` — готовность (проверка подключения к БД)
 
+## API Documentation
+
+- Swagger UI: <http://localhost:3000/api-docs>
+- OpenAPI JSON: <http://localhost:3000/api-docs.json>
+- Для тестирования авторизованных запросов нажмите кнопку **Authorize** в Swagger UI и вставьте `Bearer <access_token>` в поле значения токена.
+
 **Модели данных (Prisma):**
 
 - User (id, username, email, passwordHash, role, createdAt)

@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import { registerSchema, loginSchema } from "./auth.schemas";
-import { register, login, refresh, logout, setRefreshCookie, clearRefreshCookie } from "./auth.service";
-import { AppError } from "../../lib/errors";
-import { logger } from "../../lib/logger";
+import { registerSchema, loginSchema } from "./auth.schemas.js";
+import { register, login, refresh, logout, setRefreshCookie, clearRefreshCookie } from "./auth.service.js";
+import { AppError } from "../../lib/errors.js";
+import { logger } from "../../lib/logger.js";
 
 export const registerHandler = async (req: Request, res: Response) => {
   const input = registerSchema.parse(req.body);

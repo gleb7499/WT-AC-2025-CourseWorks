@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { authRouter } from "../modules/auth/auth.router";
-import { usersRouter } from "../modules/users/users.router";
-import { healthRouter } from "./health";
-import { formsRouter } from "../modules/forms/forms.router";
-import { statusesRouter } from "../modules/statuses/statuses.router";
-import { applicationsRouter } from "../modules/applications/applications.router";
-import { attachmentsRouter } from "../modules/attachments/attachments.router";
+import { authRouter } from "../modules/auth/auth.router.js";
+import { usersRouter } from "../modules/users/users.router.js";
+import { healthRouter } from "./health.js";
+import { formsRouter } from "../modules/forms/forms.router.js";
+import { statusesRouter } from "../modules/statuses/statuses.router.js";
+import { applicationsRouter } from "../modules/applications/applications.router.js";
+import { attachmentsRouter } from "../modules/attachments/attachments.router.js";
 
 const router = Router();
 

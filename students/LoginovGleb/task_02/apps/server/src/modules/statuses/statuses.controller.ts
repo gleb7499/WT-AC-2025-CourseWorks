@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { statusCreateSchema, statusIdParamSchema, statusUpdateSchema } from "./statuses.schemas";
-import { createStatus, deleteStatus, getStatus, listStatuses, updateStatus } from "./statuses.service";
+import { statusCreateSchema, statusIdParamSchema, statusUpdateSchema } from "./statuses.schemas.js";
+import { createStatus, deleteStatus, getStatus, listStatuses, updateStatus } from "./statuses.service.js";
 
 export const listStatusesHandler = async (_req: Request, res: Response) => {
   const statuses = await listStatuses();

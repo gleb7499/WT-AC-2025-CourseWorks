@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/auth";
-import { authorizeRoles } from "../../middleware/authorize";
-import { asyncHandler } from "../../lib/asyncHandler";
+import { authenticate } from "../../middleware/auth.js";
+import { authorizeRoles } from "../../middleware/authorize.js";
+import { asyncHandler } from "../../lib/asyncHandler.js";
 import {
   createStatusHandler,
   deleteStatusHandler,
   getStatusHandler,
   listStatusesHandler,
   updateStatusHandler
-} from "./statuses.controller";
+} from "./statuses.controller.js";
 
 const router = Router();
 

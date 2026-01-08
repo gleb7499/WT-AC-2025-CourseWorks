@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/auth";
-import { asyncHandler } from "../../lib/asyncHandler";
+import { authenticate } from "../../middleware/auth.js";
+import { asyncHandler } from "../../lib/asyncHandler.js";
 import {
   createAttachmentHandler,
   deleteAttachmentHandler,
   getAttachmentHandler,
   listAttachmentsHandler
-} from "./attachments.controller";
+} from "./attachments.controller.js";
 
 const router = Router();
 
