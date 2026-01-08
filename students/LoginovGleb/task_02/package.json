@@ -18,7 +18,13 @@
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
     "docker:dev": "docker compose -f docker-compose.dev.yml up",
-    "docker:dev:down": "docker compose -f docker-compose.dev.yml down"
+    "docker:dev:down": "docker compose -f docker-compose.dev.yml down",
+    "k8s:apply:dev": "kubectl apply -k k8s/overlays/dev",
+    "k8s:delete:dev": "kubectl delete -k k8s/overlays/dev",
+    "k8s:status:dev": "kubectl get pods,svc,ingress -n app-dev",
+    "k8s:apply:prod": "kubectl apply -k k8s/overlays/prod",
+    "k8s:delete:prod": "kubectl delete -k k8s/overlays/prod",
+    "k8s:status:prod": "kubectl get pods,svc,ingress -n app-prod"
   },
   "packageManager": "pnpm@8.15.4"
 }

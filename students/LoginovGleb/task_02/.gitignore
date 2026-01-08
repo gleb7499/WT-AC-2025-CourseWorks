@@ -14,3 +14,5 @@ playwright-report
 test-results
 .playwright
 playwright/.cache
+
+secret.yaml
