@@ -258,7 +258,7 @@ task_02/
 
 Приложение полностью контейнеризировано и готово к деплою.
 
-### Требования
+### Что нужно
 
 - Docker 24+
 - Docker Compose 2.20+
@@ -456,8 +456,8 @@ pnpm --filter @app/server prisma:studio
 - Требования: kubectl с поддержкой `-k`, доступ к кластеру (minikube/kind/облако), nginx ingress controller, образы `server` и `web` в доступном registry.
 - Структура: base манифесты в [k8s/base](k8s/base) (namespace, Deployments, Services, ConfigMap/Secret, PVC, Ingress, HPA) и оверлеи [k8s/overlays/dev](k8s/overlays/dev), [k8s/overlays/prod](k8s/overlays/prod).
 - Применение:
- 	- Dev: `pnpm k8s:apply:dev` (namespace app-dev), статус `pnpm k8s:status:dev`, удаление `pnpm k8s:delete:dev`.
- 	- Prod: `pnpm k8s:apply:prod` (namespace app-prod), статус `pnpm k8s:status:prod`, удаление `pnpm k8s:delete:prod`.
+  - Dev: `pnpm k8s:apply:dev` (namespace app-dev), статус `pnpm k8s:status:dev`, удаление `pnpm k8s:delete:dev`.
+  - Prod: `pnpm k8s:apply:prod` (namespace app-prod), статус `pnpm k8s:status:prod`, удаление `pnpm k8s:delete:prod`.
 - Ingress: базовый хост app.local, правила `/api` → backend (реврайт до корня), `/` → frontend. Обновите хосты в патчах [dev](k8s/overlays/dev/patches/ingress-host.yaml) и [prod](k8s/overlays/prod/patches/ingress-host.yaml); при необходимости включите TLS блок в [k8s/base/ingress.yaml](k8s/base/ingress.yaml).
 - Секреты: базовые [k8s/base/server/secret.yaml](k8s/base/server/secret.yaml) и [k8s/base/postgres/secret.yaml](k8s/base/postgres/secret.yaml) содержат заглушки. Для prod создайте `k8s/overlays/prod/secrets.yaml` по шаблону [k8s/overlays/prod/secrets.example.yaml](k8s/overlays/prod/secrets.example.yaml) или используйте SealedSecrets/ExternalSecrets (`secrets.yaml` уже в .gitignore).
 - Хранилище: PVC для Postgres [k8s/base/postgres/pvc.yaml](k8s/base/postgres/pvc.yaml) и Redis [k8s/base/redis/pvc.yaml](k8s/base/redis/pvc.yaml) подключаются в соответствующих Deployments.

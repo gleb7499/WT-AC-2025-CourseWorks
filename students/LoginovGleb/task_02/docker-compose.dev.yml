@@ -1,3 +1,4 @@
+---
 # Development-optimized Docker Compose configuration
 # Provides hot reload, volume mounts, and exposed ports for debugging
 

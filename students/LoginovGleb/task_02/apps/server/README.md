@@ -251,6 +251,7 @@ tests/
 ### Покрытие
 
 **Unit-тесты:**
+
 - Утилиты хеширования паролей (bcrypt)
 - Утилиты JWT (создание/верификация токенов)
 - Пагинация
@@ -258,6 +259,7 @@ tests/
 - Error handler
 
 **Integration-тесты:**
+
 - Регистрация и вход пользователей
 - Обновление токенов (refresh)
 - CRUD операции с заявками
@@ -268,6 +270,7 @@ tests/
 ### Тестовая БД
 
 Integration-тесты используют in-memory SQLite базу данных, которая создаётся и уничтожается для каждого тестового запуска. Никакая продакшн-данные не затрагиваются.
+
 - 1 файл-вложение
 
 ⚠️ **Важно:** Seed **очищает все таблицы** перед созданием данных! Используйте только в dev-окружении.
@@ -461,21 +464,25 @@ apps/server/
 ## Observability
 
 **Логи (Pino):**
+
 - Структурированный JSON вывод, уровни настраиваются через `LOG_LEVEL`.
 - `pino-http` логирует входящие запросы: метод, путь, статус, длительность; заголовки `Authorization` и `Cookie` редактируются.
 - Ошибки пишутся с stack trace; бизнес-события (создание/обновление/удаление, auth) логируются явными сообщениями.
 
 **Метрики (Prometheus):**
+
 - Эндпоинт: `/metrics` (text/plain, Prometheus exposition format).
 - Метрики: `http_requests_total`, `http_request_duration_seconds`, `auth_attempts_total` (type=login/register/refresh, success), `active_users_total` (зарезервировано) и стандартные `process_*`/`nodejs_*` от `collectDefaultMetrics`.
 
 **Кэш (Redis):**
+
 - Клиент: `ioredis`, URL задаётся `REDIS_URL`.
 - Кэшируются часто запрашиваемые списки (`forms:list:*`, `statuses:list:*`) с TTL из `CACHE_TTL_*` (по умолчанию 30/300/3600 секунд).
 - Инвалидация выполняется после create/update/delete.
 - При недоступном Redis приложение деградирует gracefully (кэш пропускается, остаётся БД).
 
 **Health checks:**
+
 - `/health` — liveness.
 - `/ready` — readiness: проверка БД (критична, 503 при недоступности) и Redis (некритичен: статус `degraded`, HTTP 200). Ответ содержит время отклика для проверок.
 

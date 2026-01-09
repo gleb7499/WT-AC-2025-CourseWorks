@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 
 export type PlaceholderCardProps = {
   title?: string;
@@ -7,7 +7,7 @@ export type PlaceholderCardProps = {
 
 export const PlaceholderCard: React.FC<PlaceholderCardProps> = ({
   title = "UI package",
-  description = "Drop shared UI primitives here"
+  description = "Drop shared UI primitives here",
 }) => {
   return (
     <div
@@ -15,7 +15,7 @@ export const PlaceholderCard: React.FC<PlaceholderCardProps> = ({
         padding: "1rem",
         borderRadius: "12px",
         border: "1px dashed #cbd5e1",
-        background: "#f8fafc"
+        background: "#f8fafc",
       }}
     >
       <strong>{title}</strong>
@@ -23,3 +23,5 @@ export const PlaceholderCard: React.FC<PlaceholderCardProps> = ({
     </div>
   );
 };
+
+
