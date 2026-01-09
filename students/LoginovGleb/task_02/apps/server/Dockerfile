@@ -5,33 +5,31 @@ FROM node:20-alpine AS builder
 WORKDIR /repo
 
 # Install OpenSSL for Prisma
-RUN apk add --no-cache openssl
-
-RUN corepack enable
+# hadolint ignore=DL3018
+RUN apk add --no-cache openssl \
+    && corepack enable
 
 # Copy monorepo configuration
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/ ./apps/
 COPY packages/ ./packages/
 
-# Install all dependencies (including dev dependencies for build)
-RUN pnpm install --frozen-lockfile
-
-# Build server and generate Prisma client
-RUN pnpm -C apps/server build
-WORKDIR /repo/apps/server
-RUN pnpm prisma generate
-WORKDIR /repo
+# Install all dependencies (including dev dependencies for build),
+# build server and generate Prisma client
+RUN pnpm install --frozen-lockfile \
+    && pnpm -C apps/server build \
+    && pnpm -C apps/server prisma generate
 
 # Stage 2: Production
 FROM node:20-alpine AS production
 WORKDIR /repo
 
 # Install OpenSSL for Prisma and curl for healthchecks
-RUN apk add --no-cache openssl curl
+# hadolint ignore=DL3018
+RUN apk add --no-cache openssl curl \
+    && corepack enable
 
 ENV NODE_ENV=production
-RUN corepack enable
 
 # Copy entire monorepo structure from builder
 COPY --from=builder /repo /repo
